@@ -1,6 +1,7 @@
 "use server";
 import { connectToDB } from "@/database";
 import User from "@/models/user";
+import { revalidatePath } from "next/cache";
 export async function fetchListOfProducts() {
   const res = await fetch("https://dummyjson.com/products");
   const jsonData = await res.json();
@@ -11,11 +12,12 @@ export async function fetchListOfProducts() {
 
 //1. Add new user action
 
-export async function addNewUserAction(formData) {
+export async function addNewUserAction(formData, pathToRevalidate) {
   await connectToDB();
   try {
     const newlyCreatedUser = await User.create(formData);
     if (newlyCreatedUser) {
+      revalidatePath(pathToRevalidate);
       return {
         success: true, // Correct
         message: "User data is added successfully",
@@ -30,5 +32,29 @@ export async function addNewUserAction(formData) {
   }
 }
 //2. fetch user action
+
+export async function fetchUsersAction() {
+  await connectToDB();
+  try {
+    const listOfUsers = await User.find({});
+    if (listOfUsers) {
+      return {
+        success: true,
+        data: JSON.parse(JSON.stringify(listOfUsers)),
+      };
+    } else {
+      return {
+        success: false,
+        message: "Some error occured! Please try again",
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Some error occured! Please try again",
+    };
+  }
+}
 //3. update user action
 //4. delete user action
