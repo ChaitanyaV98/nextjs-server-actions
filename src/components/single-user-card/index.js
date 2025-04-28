@@ -9,8 +9,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { deleteUserAction } from "@/actions";
 
 function SingleUserCard({ user }) {
+  async function handleDelete(getCurrentUserID) {
+    const result = await deleteUserAction(getCurrentUserID, "/user-management");
+
+    console.log(result);
+  }
   return (
     <Card>
       <CardHeader>
@@ -24,7 +30,7 @@ function SingleUserCard({ user }) {
       </CardContent>
       <CardFooter className="flex justify-between">
         <Button>Edit</Button>
-        <Button>Delete</Button>
+        <Button onClick={() => handleDelete(user?._id)}>Delete</Button>
       </CardFooter>
     </Card>
   );
